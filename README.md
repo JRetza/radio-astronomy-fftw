@@ -1,7 +1,7 @@
 # radio-astronomy-fftw
 
 **This is version 2 of my radio-astronomy data collection and dissemination project.**  
-**It is based on rtl_power_fftw by Klemen Blokar and Andrej Lajovic.**  
+**It is based on [a modified version of rtl_power_fftw](https://github.com/mariocannistra/rtl-power-fftw) originally written by Klemen Blokar and Andrej Lajovic.**  
 
 **All the programs have been modified to produce and manage binary data files instead of .csv ones for improved performance and reduced storage size.**  
 
