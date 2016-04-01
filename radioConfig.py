@@ -4,9 +4,18 @@
 freqCenter = 21000000   # if you want to scan from 17 to 25 MHz you enter here 21000000 as center frequency and 8000000 below as bandwidth
 freqBandwidth = 8000000
 upconvFreqHz = 125000000    # this is your upconverter offset frequency in Hz
-binSizeHz = 4000        # this is the FFT bin size, lower values will give you more detail in spectrograms, but larger files to process on the R-PI (gnuplot is memory hungry)
-integrationIntervalSec = 1 # see rtl_power documentation, this is the integration time, 1 sec is my preference since will give more detail. Use this if you are using rtl_power version of this software.
-integrationScans = 100 # see rtl_power_fftw documentation, this is the number of scans that will be averaged for integration purposes. Allows to integrate for less than 1 second. Use this if you are using rtl_power_fftw version of this software.
+
+# maximum value successfully tested on the R-PI-3 : 2800000
+rtlSampleRateHz = 2000000
+
+# specify one of the two values and set the other to 0
+totalFFTbins = 4000	# this is the total number of bins available on a scan (will be divided by number of necessary hops)
+binSizeHz = 0 # this is the FFT bin size in Hz, lower values will give you more detail in spectrograms, but larger files to process on the R-PI (gnuplot is memory hungry)
+
+# specify one of the two values and set the other to 0
+integrationIntervalSec = 0.5	# see rtl_power_fftw documentation, this is the integration time in seconds. can be < 1 sec 
+integrationScans = 0	# see rtl_power_fftw documentation, this is the number of scans that will be averaged for integration purposes. Allows to integrate for less than 1 second.
+
 gain = 30   # maximum gain is about 49, can be too much in certain positions with strong interfering sources
 tunerOffsetPPM = 0 # see rtl_power documentation, i can use 0 on my TCXO based dongle, cab be anything from 0 to 60 or more depending on the dongle (use kalibrate to find it out)
 fftCropPercentage = 0.2 # see rtl_power documentation, this is my suggested value
