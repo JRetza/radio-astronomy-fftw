@@ -17,6 +17,7 @@ integrationIntervalSec = 0.5	# see rtl_power_fftw documentation, this is the int
 integrationScans = 0	# see rtl_power_fftw documentation, this is the number of scans that will be averaged for integration purposes. Allows to integrate for less than 1 second.
 
 gain = 30   # maximum gain is about 49, can be too much in certain positions with strong interfering sources
+linearPower = False	# flag to calculate linear power values instead of logarithmic
 tunerOffsetPPM = 0 # see rtl_power documentation, i can use 0 on my TCXO based dongle, cab be anything from 0 to 60 or more depending on the dongle (use kalibrate to find it out)
 fftCropPercentage = 0.2 # see rtl_power documentation, this is my suggested value
 dataGatheringDurationMin = 30   # duration of single scan in minutes. 30 minutes is the suggested duration for better chart and limit on memory available on R-PI-2 for gnuplot
