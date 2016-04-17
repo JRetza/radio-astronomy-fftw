@@ -39,8 +39,7 @@ for fname in files_in_dir:
     thismin=dbs.min()
     thismax=dbs.max()
     scantime=str(fname)[11:17]
-    scandate=str(fname)[3:11]
-    print(scandate,scantime,thismin,thismax)
+    print(scantime,thismin,thismax)
 
     if thismin < globmin:
         globmin = thismin
@@ -67,7 +66,7 @@ plt.ylabel('Signal power', fontsize=8)
 plt.tick_params(labelsize=8)
 plt.plot(xs,sessmax )
 plt.plot(xs,sessmin )
-#plt.plot(xs,sessdiff )
+plt.plot(xs,sessdiff )
 plt.xticks(xs,scantimeline,rotation=70,fontsize=8)
 
 for i,j in zip(xs,sessmin):
@@ -77,8 +76,7 @@ for i,j in zip(xs,sessmax):
     tann = '%.1f' % j
     plt.annotate( tann, xy=(i,j), xytext=(0,-20), textcoords='offset points', fontsize=8 )
 plt.grid()
-#leg = plt.legend( ('maxima','minima','difference'), loc='upper right' )
-leg = plt.legend( ('maxima','minima'), loc='upper right' )
+leg = plt.legend( ('maxima','minima','difference'), loc='upper right' )
 leg.get_frame().set_alpha(0.5)
 plt.title(mytitle)
 #plt.show()

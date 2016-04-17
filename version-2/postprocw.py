@@ -141,26 +141,10 @@ with open(metaname, 'r') as f:
     avgScanDur = float(inflds[0])
     linein = f.readline()
     inflds = linein.split()
-    firstAcqTimestamp = inflds[0] + ' ' + inflds[1]
+    firstAcqTimestamp = inflds[0]
     linein = f.readline()
     inflds = linein.split()
-    lastAcqTimestamp = inflds[0] + ' ' + inflds[1]
-
-    linein = f.readline()
-    inflds = linein.split()
-    samplingRate = inflds[0]
-    linein = f.readline()
-    inflds = linein.split()
-    hops = inflds[0]
-    linein = f.readline()
-    inflds = linein.split()
-    cropPercentage = inflds[0]
-    linein = f.readline()
-    inflds = linein.split()
-    cropExcludedBins = inflds[0]
-    linein = f.readline()
-    inflds = linein.split()
-    cropFreqOffset = inflds[0]
+    lastAcqTimestamp = inflds[0]
 
 matorg = '(' + bincols + ',' + binrows + ')'
 
@@ -241,9 +225,9 @@ ylab = ymargin + oh + 25
 draw.text((xlab, ylab), "UTC time", (0,0,0),font=font)
 
 # add timeline on X axis
-iniTime = to_datetime_from_utc(time.strptime(firstAcqTimestamp, "%Y-%m-%d %H:%M:%S"))
-endTime = to_datetime_from_utc(time.strptime(lastAcqTimestamp, "%Y-%m-%d %H:%M:%S"))
-stepTime = (endTime - iniTime).total_seconds() / 11.0   # we want 11 ticks...
+iniTime = to_datetime_from_utc(time.strptime(firstAcqTimestamp, "%y%m%d%H%M%S"))
+endTime = to_datetime_from_utc(time.strptime(lastAcqTimestamp, "%y%m%d%H%M%S"))
+stepTime = (endTime - iniTime).total_seconds() / 11.0
 
 xlab = xmargin
 xstep = (ow * 0.875) / 10
@@ -265,8 +249,6 @@ new_im = new_im.convert('P', palette=Image.ADAPTIVE, colors=256)
 print("...adding metadata to image...")
 # create and attach info dictionary with metadata
 meta = PngImagePlugin.PngInfo()
-meta.add_text("ra-stationID", radioConfig.stationID)
-meta.add_text("ra-scanTarget", radioConfig.scanTarget)
 meta.add_text("ra-FFTbins", str(bincols))
 meta.add_text("ra-scans", str(binrows))
 meta.add_text("ra-FreqStart", str(startFreq))
@@ -276,12 +258,6 @@ meta.add_text("ra-effIntTime", str(effIntTime))
 meta.add_text("ra-avgScanDur", str(avgScanDur))
 meta.add_text("ra-scanTimestampFirst", firstAcqTimestamp)
 meta.add_text("ra-scanTimestampLast", lastAcqTimestamp)
-meta.add_text("ra-samplingRate", samplingRate)
-meta.add_text("ra-upconverterFreq", str(radioConfig.upconvFreqHz))
-meta.add_text("ra-hops", hops)
-meta.add_text("ra-cropPercentage", cropPercentage)
-meta.add_text("ra-cropExcludedBins", cropExcludedBins)
-meta.add_text("ra-cropFreqOffset", cropFreqOffset)
 
 # TO DO:  add min and max power level for this image in the meta
 # on linux, if you have imagemagick, use this command to view PNG metadata:

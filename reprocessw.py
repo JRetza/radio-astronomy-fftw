@@ -41,7 +41,8 @@ for fname in files_in_dir:
     thismin=dbs.min()
     thismax=dbs.max()
     scantime=str(fname)[11:17]
-    print(scantime,thismin,thismax)
+    scandate=str(fname)[3:11]
+    print(scandate,scantime,thismin,thismax)
 
     if thismin < globmin:
         globmin = thismin

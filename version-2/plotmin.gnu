@@ -49,6 +49,5 @@ set tmargin 0
 set bmargin 0
 
 set output outname.".png"
-set datafile nofpe_trap
 
 plot outname.".bin" binary array=@matorg rotation=-90d format='%float' with image

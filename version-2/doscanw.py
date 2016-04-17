@@ -64,10 +64,7 @@ else:
 cmdstring = cmdstring + " -g " + str(radioConfig.gain * 10)
 
 cmdstring = cmdstring + " -p " + str(radioConfig.tunerOffsetPPM)
-
-if radioConfig.cropPercentage > 0:
-    cmdstring = cmdstring + " -x " + str(radioConfig.cropPercentage)
-
+#cmdstring = cmdstring + " -c " + str(radioConfig.fftCropPercentage)
 cmdstring = cmdstring + " -e " + datagathduration
 cmdstring = cmdstring + " -q"
 
@@ -81,7 +78,7 @@ while scancnt <= numscans:
     scantimestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
 
     #build scan filename
-    scanname = "UTC" + scantimestamp + "-" + radioConfig.stationID + "-" + radioConfig.scanTarget + "-" + truefreqstart + "-" + truefreqstop + "-b" + str(totalFFTbins)
+    scanname = "UTC" + scantimestamp + "-" + radioConfig.scanTarget + "-" + truefreqstart + "-" + truefreqstop + "-b" + str(totalFFTbins)
 
     if radioConfig.integrationIntervalSec > 0:
         scanname = scanname + "-t" + str(radioConfig.integrationIntervalSec)

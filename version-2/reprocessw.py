@@ -2,14 +2,16 @@
 
 # this source is part of my Hackster.io project:  https://www.hackster.io/mariocannistra/radio-astronomy-with-rtl-sdr-raspberrypi-and-amazon-aws-iot-45b617
 
-# this program will determine the overall range of signal strengths received during the whole session.
+# this program will reprocess all the scan session binary files
+#  - determine the overall range of signal strengths received during the whole session
+#  - plot again all the files using the same palette range based on the overall range just determined
 
-# this program can be run standalone but is usually run at end of session by  doscanw.py
+# this program is meant to be run standalone
 
-# Its output will be stored in 2 files:
-# dbminmax.txt and session-overview.png . The first contains two rows of text with just the maximum
-# and minimum of the whole session. The second contains a chart of all the min and max values for each of
-# the scan files
+# Its output files are:
+#  - dbminmax.txt and session-overview.png  produced by the findsessionrangew.py porgram.
+#  - the .png file of the annotated plot with metadata stored in the png file
+#  - the corresponding .gif thumbnail to be used for web presentation if any
 
 from glob import glob
 import numpy as np
@@ -39,8 +41,7 @@ for fname in files_in_dir:
     thismin=dbs.min()
     thismax=dbs.max()
     scantime=str(fname)[11:17]
-    scandate=str(fname)[3:11]
-    print(scandate,scantime,thismin,thismax)
+    print(scantime,thismin,thismax)
 
     if thismin < globmin:
         globmin = thismin
@@ -67,7 +68,7 @@ plt.ylabel('Signal power', fontsize=8)
 plt.tick_params(labelsize=8)
 plt.plot(xs,sessmax )
 plt.plot(xs,sessmin )
-#plt.plot(xs,sessdiff )
+plt.plot(xs,sessdiff )
 plt.xticks(xs,scantimeline,rotation=70,fontsize=8)
 
 for i,j in zip(xs,sessmin):
@@ -77,8 +78,7 @@ for i,j in zip(xs,sessmax):
     tann = '%.1f' % j
     plt.annotate( tann, xy=(i,j), xytext=(0,-20), textcoords='offset points', fontsize=8 )
 plt.grid()
-#leg = plt.legend( ('maxima','minima','difference'), loc='upper right' )
-leg = plt.legend( ('maxima','minima'), loc='upper right' )
+leg = plt.legend( ('maxima','minima','difference'), loc='upper right' )
 leg.get_frame().set_alpha(0.5)
 plt.title(mytitle)
 #plt.show()
@@ -91,3 +91,11 @@ sessfile.write("\n")
 sessfile.write(str(globmin))
 sessfile.write("\n")
 sessfile.close()
+
+files_in_dir = glob("*.bin")
+for fname in files_in_dir:
+    scanname = fname[:-4]
+    chartcmdstring = "python postprocw.py " + scanname + " " + str(globmin) + " " + str(globmax)
+    print(chartcmdstring)
+    genchrtp = subprocess.Popen(chartcmdstring, shell = True)
+    os.waitpid(genchrtp.pid, 0)

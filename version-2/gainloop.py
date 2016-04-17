@@ -33,17 +33,7 @@ for ggg in availgains:
 	sfreqstart = '%0.3fM' % (freqstart/1000000.0)
 	sfreqstop = '%0.3fM' % (freqstop/1000000.0)
 
-	if radioConfig.totalFFTbins > 0:
-	    freqbins = radioConfig.totalFFTbins
-	else:
-	    freqbins = (freqstop - freqstart) / radioConfig.binSizeHz
-
-	hops = ceil( float(freqstop - freqstart) / float(radioConfig.rtlSampleRateHz) )
-	if hops > 1:
-	    freqbins = int( freqbins / hops )
-	    totalFFTbins = int(freqbins * hops)
-	else:
-	    totalFFTbins = int(freqbins)
+	freqbins = (freqstop - freqstart) / radioConfig.binSizeHz
 
 	datagathduration = str(radioConfig.dataGatheringDurationMin) + "m"
 	truefreqstart = '%0.3fM' % ((radioConfig.freqCenter - (radioConfig.freqBandwidth/2))/1000000.0)
@@ -52,58 +42,44 @@ for ggg in availgains:
 	cmdstring = cmdstring + " -f " + str(freqstart)
 	cmdstring = cmdstring + ":" + str(freqstop)
 
-	cmdstring = cmdstring + " -r " + str(radioConfig.rtlSampleRateHz)
-
 	cmdstring = cmdstring + " -b " + str(freqbins)
-
-	if radioConfig.integrationIntervalSec > 0:
-	    cmdstring = cmdstring + " -t " + str(radioConfig.integrationIntervalSec)
-	    cmdstring = cmdstring + " -T"
-	else:
-	    cmdstring = cmdstring + " -n " + str(radioConfig.integrationScans)
+	cmdstring = cmdstring + " -n " + str(radioConfig.integrationScans)
 
 	cmdstring = cmdstring + " -g " + str( ggg )
 
 	cmdstring = cmdstring + " -p " + str(radioConfig.tunerOffsetPPM)
-
-	if radioConfig.cropPercentage > 0:
-	    cmdstring = cmdstring + " -x " + str(radioConfig.cropPercentage)
-
+	#cmdstring = cmdstring + " -c " + str(radioConfig.fftCropPercentage)
 	cmdstring = cmdstring + " -e " + datagathduration
 	cmdstring = cmdstring + " -q"
 
-	if radioConfig.linearPower:
-	    cmdstring = cmdstring + " -l"
+	numscans = radioConfig.sessionDurationMin / radioConfig.dataGatheringDurationMin
 
-	scantimestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
+	scancnt = 1
+	while scancnt <= numscans:
+		scantimestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
 
-    #build scan filename
-    scanname = "UTC" + scantimestamp + "-" + radioConfig.stationID + "-" + radioConfig.scanTarget + "-" + truefreqstart + "-" + truefreqstop + "-b" + str(totalFFTbins)
+		scanname = "UTC" + scantimestamp + "-" + radioConfig.scanTarget + "-" + truefreqstart + "-" + truefreqstop + "-" + str(radioConfig.binSizeHz) + "-n" + str(radioConfig.integrationScans) + "-g" + str( ggg ) + "-e" + datagathduration
 
-    if radioConfig.integrationIntervalSec > 0:
-        scanname = scanname + "-t" + str(radioConfig.integrationIntervalSec)
-    else:
-        scanname = scanname + "-n" + str(radioConfig.integrationScans)
+		completecmdstring = cmdstring + " -m " + scanname
 
-    scanname = scanname + "-g" + str( ggg ) + "-e" + datagathduration
+		print(completecmdstring)
 
-    completecmdstring = cmdstring + " -m " + scanname
-
-	print('running scan with gain %s' % (ggg))
-	print(completecmdstring)
-
-	#run the scan and wait for completion
-	scanp = subprocess.Popen(completecmdstring, shell = True)
-	os.waitpid(scanp.pid, 0)
+		print('\nrunning scan %d of %d\n' % (scancnt,numscans))
+		#print(completecmdstring)
+		#run the scan and wait for completion
+		scanp = subprocess.Popen(completecmdstring, shell = True)
+		os.waitpid(scanp.pid, 0)
 
 	#get event probability info
 	#process the scan adding probability info
 
-	chartcmdstring = "python postprocw.py " + scanname
-	#run gnuplot WITHOUT waiting for completion
-	genchrtp = subprocess.Popen(chartcmdstring, shell = True)
+		chartcmdstring = "python postprocw.py " + scanname
+		#run gnuplot WITHOUT waiting for completion
+		genchrtp = subprocess.Popen(chartcmdstring, shell = True)
 
-	print('processing complete for scan with gain %s' % (ggg))
+		print('processing complete for scan %d of %d\n' % (scancnt,numscans))
+		# go on with next scan:
+		scancnt = scancnt + 1
 
 chartcmdstring = "python findsessionrangew.py"
 genchrtp = subprocess.Popen(chartcmdstring, shell = True)
