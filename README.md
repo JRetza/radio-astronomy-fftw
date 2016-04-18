@@ -5,7 +5,9 @@
 
 **All the programs have been modified to produce and manage binary data files instead of .csv ones for improved performance and reduced storage size.**  
 
-A diagram showing the interactions between the various programs is available [here](doc/observ-sw-diagram.png)
+A diagram showing the interactions between the various programs is available [here](https://raw.githubusercontent.com/mariocannistra/radio-astronomy-fftw/master/doc/observ-sw-diagram.png)  
+
+Full documentation of the software setup and config for the various programs and tools is [here](doc/sw-setup.pdf)  
 
 **All this sw has been changed/written, built and tested on a Raspberry PI 2 and then installed and re-tested on a Raspberry PI 3.**  
 
