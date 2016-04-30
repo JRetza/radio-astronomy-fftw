@@ -18,11 +18,12 @@ import subprocess
 import os
 import radioConfig
 import numpy as np
+import math
 
 availgains = np.array( [ 9, 14, 27, 37, 77, 87, 125, 144, 157, 166, 197, 207, 229, 254, 280, 297, 328, 338, 364, 372, 386, 402, 421, 434, 439, 445, 480, 496 ] )
 
 # 328-338-364
-# these are the 3 best gain values found on first run, 20.1 MHz and stylus antenna
+# these are the 3 best gain values found on first run, 20.1 MHz and stylus antenna, without LNA
 
 for ggg in availgains:
 
@@ -34,16 +35,16 @@ for ggg in availgains:
 	sfreqstop = '%0.3fM' % (freqstop/1000000.0)
 
 	if radioConfig.totalFFTbins > 0:
-	    freqbins = radioConfig.totalFFTbins
+		freqbins = radioConfig.totalFFTbins
 	else:
-	    freqbins = (freqstop - freqstart) / radioConfig.binSizeHz
+		freqbins = (freqstop - freqstart) / radioConfig.binSizeHz
 
-	hops = ceil( float(freqstop - freqstart) / float(radioConfig.rtlSampleRateHz) )
+	hops = math.ceil( float(freqstop - freqstart) / float(radioConfig.rtlSampleRateHz) )
 	if hops > 1:
-	    freqbins = int( freqbins / hops )
-	    totalFFTbins = int(freqbins * hops)
+		freqbins = int( freqbins / hops )
+		totalFFTbins = int(freqbins * hops)
 	else:
-	    totalFFTbins = int(freqbins)
+		totalFFTbins = int(freqbins)
 
 	datagathduration = str(radioConfig.dataGatheringDurationMin) + "m"
 	truefreqstart = '%0.3fM' % ((radioConfig.freqCenter - (radioConfig.freqBandwidth/2))/1000000.0)
@@ -57,37 +58,37 @@ for ggg in availgains:
 	cmdstring = cmdstring + " -b " + str(freqbins)
 
 	if radioConfig.integrationIntervalSec > 0:
-	    cmdstring = cmdstring + " -t " + str(radioConfig.integrationIntervalSec)
-	    cmdstring = cmdstring + " -T"
+		cmdstring = cmdstring + " -t " + str(radioConfig.integrationIntervalSec)
+		cmdstring = cmdstring + " -T"
 	else:
-	    cmdstring = cmdstring + " -n " + str(radioConfig.integrationScans)
+		cmdstring = cmdstring + " -n " + str(radioConfig.integrationScans)
 
 	cmdstring = cmdstring + " -g " + str( ggg )
 
 	cmdstring = cmdstring + " -p " + str(radioConfig.tunerOffsetPPM)
 
 	if radioConfig.cropPercentage > 0:
-	    cmdstring = cmdstring + " -x " + str(radioConfig.cropPercentage)
+		cmdstring = cmdstring + " -x " + str(radioConfig.cropPercentage)
 
 	cmdstring = cmdstring + " -e " + datagathduration
 	cmdstring = cmdstring + " -q"
 
 	if radioConfig.linearPower:
-	    cmdstring = cmdstring + " -l"
+		cmdstring = cmdstring + " -l"
 
 	scantimestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
 
     #build scan filename
-    scanname = "UTC" + scantimestamp + "-" + radioConfig.stationID + "-" + radioConfig.scanTarget + "-" + truefreqstart + "-" + truefreqstop + "-b" + str(totalFFTbins)
+	scanname = "UTC" + scantimestamp + "-" + radioConfig.stationID + "-" + radioConfig.scanTarget + "-" + truefreqstart + "-" + truefreqstop + "-b" + str(totalFFTbins)
 
-    if radioConfig.integrationIntervalSec > 0:
-        scanname = scanname + "-t" + str(radioConfig.integrationIntervalSec)
-    else:
-        scanname = scanname + "-n" + str(radioConfig.integrationScans)
+	if radioConfig.integrationIntervalSec > 0:
+		scanname = scanname + "-t" + str(radioConfig.integrationIntervalSec)
+	else:
+		scanname = scanname + "-n" + str(radioConfig.integrationScans)
 
-    scanname = scanname + "-g" + str( ggg ) + "-e" + datagathduration
+	scanname = scanname + "-g" + str( ggg ) + "-e" + datagathduration
 
-    completecmdstring = cmdstring + " -m " + scanname
+	completecmdstring = cmdstring + " -m " + scanname
 
 	print('running scan with gain %s' % (ggg))
 	print(completecmdstring)

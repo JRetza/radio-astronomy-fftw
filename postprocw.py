@@ -20,7 +20,7 @@ import subprocess
 import time
 import radioConfig
 from time import sleep
-import Image, ImageFont, ImageDraw, PngImagePlugin
+from PIL import Image, ImageFont, ImageDraw, PngImagePlugin
 import copy
 import pytz
 import calendar
@@ -103,8 +103,10 @@ fileDate = sys.argv[1][3:11]
 
 print("fileDate: ",fileDate)
 
+rangespec = False
 #these will be present only when post processing at end of session:
 if len(sys.argv)==4:
+	rangespec = True
 	globmin = float(sys.argv[2])
 	globmax = float(sys.argv[3])
 else:
@@ -167,29 +169,47 @@ matorg = '(' + bincols + ',' + binrows + ')'
 startFreq = startFreq - radioConfig.upconvFreqHz
 endFreq = endFreq - radioConfig.upconvFreqHz
 
-cmdstring = "gnuplot -e \"scanstart='%s'\" -e \"scanend='%s'\" -e fstart=%d -e fend=%d -e fstep=%d -e singlescandur=%f -e \"matorg='%s'\" -e \"outname='%s'\" -e globmin=%f -e globmax=%f plotmin.gnu" % (firstAcqTimestamp, lastAcqTimestamp, startFreq, endFreq, stepFreq, avgScanDur, matorg, sys.argv[1], globmin, globmax)
+cropRelatedReduction = ( int(cropExcludedBins) / 2 ) * stepFreq
+
+startFreq = startFreq + cropRelatedReduction
+endFreq = endFreq - cropRelatedReduction
+
+#cmdstring = "gnuplot -e \"scanstart='%s'\" -e \"scanend='%s'\" -e fstart=%d -e fend=%d -e fstep=%d -e singlescandur=%f -e \"matorg='%s'\" -e \"outname='%s'\" -e globmin=%f -e globmax=%f plotmin.gnu" % (firstAcqTimestamp, lastAcqTimestamp, startFreq, endFreq, stepFreq, avgScanDur, matorg, sys.argv[1], globmin, globmax)
+cmdstring = "python pyrend.py %s" % ( sys.argv[1] )
+if rangespec == True:
+	cmdstring = cmdstring + " " + str(globmin) + " " + str(globmax)
+
 print(cmdstring)
 
 print("generating heatmap...")
 p = subprocess.Popen(cmdstring, shell = True)
-print("...gnuplot running...")
-# comment out the following to avoid waiting for gnuplot:
-os.waitpid(p.pid, 0)
-print("...gnuplot completed...")
+print("...pyrend running...")
+# comment out the following to avoid waiting for pyrend:
+#os.waitpid(p.pid, 0)
+p.wait()
+print("...pyrend completed...")
 
 outname = sys.argv[1]
+thumbname =  sys.argv[1] + '.gif'
 
 xmargin = 160
 ymargin = 100
 
-print("...performing annotation...")
 # load image and get size info
 old_im = Image.open(outname + '.png')
 old_size = old_im.size
 ow, oh = old_im.size
 
+if radioConfig.generateThumbs == True:
+	print("...generating thumbnail...")
+	# create thumbnail in gif format
+	thumb = copy.deepcopy(old_im)
+	thumb.thumbnail( (ow/10,oh/10) , Image.ANTIALIAS)
+	thumb.save(thumbname,'GIF')
+
+print("...performing annotation...")
 # add enough margin for axis labels
-new_size = ( ow + xmargin, oh + ymargin + ymargin )
+new_size = ( ow + xmargin + xmargin, oh + ymargin + ymargin + 50)
 new_im = Image.new("RGB", new_size, color=(255,255,255) )
 new_im.paste(old_im, ( xmargin, ymargin ) )
 
@@ -209,7 +229,7 @@ font = ImageFont.truetype("Vera.ttf", fonth)
 
 iniFreq = startFreq / 1000000.0
 finFreq = endFreq / 1000000.0
-stFreqLab = ( finFreq - iniFreq ) / 10
+stFreqLab = ( finFreq - iniFreq ) / 10.0
 
 def frange(start, stop, step):
     i = 0
@@ -227,7 +247,7 @@ xlab = xmargin / 3
 ylab = ymargin + oh
 ystep = oh / 10
 for flab in frange( iniFreq, finFreq, stFreqLab ):
-    strflab = '%.1f' % flab
+    strflab = '%.2f' % flab
     draw.text((xlab, ylab-midfont), strflab, (0,0,0),font=font)
     draw.line((xmargin-20,ylab, xmargin,ylab), fill=0, width=1)
     ylab = ylab - ystep
@@ -236,24 +256,25 @@ def to_datetime_from_utc(time_tuple):
     return datetime.fromtimestamp(calendar.timegm(time_tuple), tz=pytz.utc)
 
 # X axis label:
-xlab = ow - (xmargin / 2)
-ylab = ymargin + oh + 25
+xlab = (ow / 2) - 30    # middle of image
+ylab = ymargin + oh + ymargin   # bottom of image
 draw.text((xlab, ylab), "UTC time", (0,0,0),font=font)
 
 # add timeline on X axis
 iniTime = to_datetime_from_utc(time.strptime(firstAcqTimestamp, "%Y-%m-%d %H:%M:%S"))
 endTime = to_datetime_from_utc(time.strptime(lastAcqTimestamp, "%Y-%m-%d %H:%M:%S"))
-stepTime = (endTime - iniTime).total_seconds() / 11.0   # we want 11 ticks...
+stepTime = (endTime - iniTime).total_seconds() / 20.0   # we want 11 ticks...
 
 xlab = xmargin
-xstep = (ow * 0.875) / 10
+xstep = (ow) / 20
 ylab = ymargin + oh
 tlab = iniTime
-for j in range(0, 11):
+for j in range(0, 21):
     strtlab = tlab.strftime('%H:%M:%S')
-    #strtlab = tlab.strftime('%H:%M:%S\n%d %b')
-    draw.text((xlab-60, ylab+25), strtlab, (0,0,0),font=font)
+    strtdat =  tlab.strftime('%b %d')
     draw.line((xlab,ylab, xlab,ylab+20), fill=0, width=1)
+    draw.text((xlab-60, ylab+25), strtlab, (0,0,0),font=font)
+    draw.text((xlab-60, ylab+55), strtdat, (0,0,0),font=font)
     xlab = xlab + xstep
     tlab = tlab + timedelta(seconds=stepTime)
 
@@ -292,11 +313,6 @@ new_im.save(outname + '-annotated.png', "png", pnginfo=meta, optimize=True)
 os.remove(outname + '.png')
 os.rename(outname + '-annotated.png', outname + '.png')
 print("...annotated plot saved.")
-
-# create thumbnail in gif format
-thumb = copy.deepcopy(new_im)
-thumb.thumbnail( (ow/10,oh/10) , Image.ANTIALIAS)
-thumb.save(outname + '.gif','GIF')
 
 # upload spectrogram file to aws S3
 if radioConfig.uploadToS3:

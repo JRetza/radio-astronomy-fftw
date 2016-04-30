@@ -36,6 +36,7 @@ stationLon = "00.00000 X"  # enter your station longitude here with this string 
 stationElev = 0   # enter your station elevation in meters (above sea level)
 # here you can specify:
 plotWaterfall = True
+generateThumbs = False
 uploadToS3 = False	# if you want to upload your scans
 sendIoTmsg = False  # if you want to send notifications. Please, get in touch with me to get the certificates in order to send mqtt notifications
 # do not change the following lines:

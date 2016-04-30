@@ -57,7 +57,7 @@ cmdstring = cmdstring + " -b " + str(freqbins)
 
 if radioConfig.integrationIntervalSec > 0:
     cmdstring = cmdstring + " -t " + str(radioConfig.integrationIntervalSec)
-    cmdstring = cmdstring + " -T"
+    #cmdstring = cmdstring + " -T"
 else:
     cmdstring = cmdstring + " -n " + str(radioConfig.integrationScans)
 
@@ -74,10 +74,16 @@ cmdstring = cmdstring + " -q"
 if radioConfig.linearPower:
     cmdstring = cmdstring + " -l"
 
+if radioConfig.sessionDurationMin == 0:
+    loopForever = True
+else:
+    loopForever = False
+
 numscans = radioConfig.sessionDurationMin / radioConfig.dataGatheringDurationMin
 
 scancnt = 1
-while scancnt <= numscans:
+continueLoop = True
+while continueLoop:
     scantimestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
 
     #build scan filename
@@ -94,7 +100,7 @@ while scancnt <= numscans:
 
     print(completecmdstring)
 
-    print('\nrunning scan %d of %d  (%d hops per scan)\n' % (scancnt,numscans,hops))
+    print('\nrunning scan n. %d  (%d hops per scan)\n' % (scancnt, hops))
     #print(completecmdstring)
     #run the scan and wait for completion
     scanp = subprocess.Popen(completecmdstring, shell = True)
@@ -110,7 +116,10 @@ while scancnt <= numscans:
         print('processing complete for scan %d of %d\n' % (scancnt,numscans))
 
     # go on with next scan:
-    scancnt = scancnt + 1
+    if loopForever == False:
+        scancnt = scancnt + 1
+        if scancnt > numscans:
+            continueLoop = False
 
 chartcmdstring = "python findsessionrangew.py"
 genchrtp = subprocess.Popen(chartcmdstring, shell = True)

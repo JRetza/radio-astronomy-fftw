@@ -40,7 +40,6 @@ for fname in files_in_dir:
     thismax=dbs.max()
     scantime=str(fname)[11:17]
     scandate=str(fname)[3:11]
-    print(scandate,scantime,thismin,thismax)
 
     if thismin < globmin:
         globmin = thismin
@@ -50,6 +49,8 @@ for fname in files_in_dir:
     sessmax = np.append(sessmax, thismax)
     scantime = strinsert(scantime, ":", 2)
     scantime = strinsert(scantime, ":", 5)
+    scantime = scandate[-2:] + " " + scantime
+    print(scandate,scantime,thismin,thismax)
     scantimeline = np.append(scantimeline, scantime)
 
 mytitle = 'This session signal range: min %.2f .. max %.2f' % (globmin,globmax)

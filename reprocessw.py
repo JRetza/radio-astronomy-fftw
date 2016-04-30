@@ -42,7 +42,6 @@ for fname in files_in_dir:
     thismax=dbs.max()
     scantime=str(fname)[11:17]
     scandate=str(fname)[3:11]
-    print(scandate,scantime,thismin,thismax)
 
     if thismin < globmin:
         globmin = thismin
@@ -52,6 +51,8 @@ for fname in files_in_dir:
     sessmax = np.append(sessmax, thismax)
     scantime = strinsert(scantime, ":", 2)
     scantime = strinsert(scantime, ":", 5)
+    scantime = scandate[-2:] + " " + scantime
+    print(scandate,scantime,thismin,thismax)
     scantimeline = np.append(scantimeline, scantime)
 
 mytitle = 'This session signal range: min %.2f .. max %.2f' % (globmin,globmax)
@@ -60,7 +61,7 @@ print(mytitle)
 # this red plot will help us in finding the scan with highest power range
 # (when using the gainloop.py program it will be useful to find the best gain values)
 # adding globmin value just to offset the red plot to the middle of the chart
-sessdiff = ( sessmax - sessmin ) + globmin
+#sessdiff = ( sessmax - sessmin ) + globmin
 
 xs = range(len(scantimeline))
 plt.figure(figsize=(12, 9), dpi=600)
@@ -69,17 +70,17 @@ plt.ylabel('Signal power', fontsize=8)
 plt.tick_params(labelsize=8)
 plt.plot(xs,sessmax )
 plt.plot(xs,sessmin )
-plt.plot(xs,sessdiff )
+#plt.plot(xs,sessdiff )
 plt.xticks(xs,scantimeline,rotation=70,fontsize=8)
 
-for i,j in zip(xs,sessmin):
-    tann = '%.1f' % j
-    plt.annotate( tann, xy=(i,j), xytext=(0,15), textcoords='offset points', fontsize=8 )
-for i,j in zip(xs,sessmax):
-    tann = '%.1f' % j
-    plt.annotate( tann, xy=(i,j), xytext=(0,-20), textcoords='offset points', fontsize=8 )
+#for i,j in zip(xs,sessmin):
+#    tann = '%.1f' % j
+#    plt.annotate( tann, xy=(i,j), xytext=(0,15), textcoords='offset points', fontsize=8 )
+#for i,j in zip(xs,sessmax):
+#    tann = '%.1f' % j
+#    plt.annotate( tann, xy=(i,j), xytext=(0,-20), textcoords='offset points', fontsize=8 )
 plt.grid()
-leg = plt.legend( ('maxima','minima','difference'), loc='upper right' )
+leg = plt.legend( ('maxima','minima'), loc='upper right' )
 leg.get_frame().set_alpha(0.5)
 plt.title(mytitle)
 #plt.show()
@@ -99,4 +100,5 @@ for fname in files_in_dir:
     chartcmdstring = "python postprocw.py " + scanname + " " + str(globmin) + " " + str(globmax)
     print(chartcmdstring)
     genchrtp = subprocess.Popen(chartcmdstring, shell = True)
-    os.waitpid(genchrtp.pid, 0)
+    genchrtp.wait()
+	#os.waitpid(genchrtp.pid, 0)
