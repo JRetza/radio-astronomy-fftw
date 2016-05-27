@@ -15,20 +15,19 @@ cmapname = 'jet'
 ow = 3000
 oh = ow / 4 * 3
 
-metaname = './' + sys.argv[1] + '.met'
-binname =  './' + sys.argv[1] + '.bin'
-outname =  './' + sys.argv[1] + '.png'
-thumbname =  './' + sys.argv[1] + '.gif'
-
-rangespec = False
-#these will be present only when post processing at end of session:
-if len(sys.argv)==4:
-	rangespec = True
-	vmin = float(sys.argv[2])
-	vmax = float(sys.argv[3])
+vmin = float(sys.argv[2])
+vmax = float(sys.argv[3])
+#these will be <> 0 only when post processing at end of session:
+if vmin==0.0 and vmax==0.0:
+	rangespec = False
 else:
-	vmin = 0.0
-	vmax = 0.0
+	rangespec = True
+
+sessionfolder = sys.argv[4]
+
+metaname = sessionfolder + os.sep + sys.argv[1] + '.met'
+binname = sessionfolder + os.sep + sys.argv[1] + '.bin'
+outname = sessionfolder + os.sep + sys.argv[1] + '.png'
 
 with open(metaname, 'r') as f:
     linein = f.readline()

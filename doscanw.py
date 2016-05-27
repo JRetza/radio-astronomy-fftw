@@ -23,9 +23,16 @@ import os
 import radioConfig
 from math import ceil
 
-#build scan command line
+def make_sure_path_exists(directory):
+	if not os.path.exists(directory):
+		os.makedirs(directory)
 
 cmdstring = "rtl_power_fftw"
+
+sessiondate = datetime.utcnow().strftime('%Y%m%d')
+#create folder if does not exist yet:
+make_sure_path_exists(sessiondate)
+
 
 freqstart = radioConfig.freqCenter - (radioConfig.freqBandwidth/2) + radioConfig.upconvFreqHz
 freqstop  = radioConfig.freqCenter + (radioConfig.freqBandwidth/2) + radioConfig.upconvFreqHz
@@ -83,6 +90,7 @@ numscans = radioConfig.sessionDurationMin / radioConfig.dataGatheringDurationMin
 
 scancnt = 1
 continueLoop = True
+postprocrunning = False
 while continueLoop:
     scantimestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
 
@@ -96,7 +104,7 @@ while continueLoop:
 
     scanname = scanname + "-g" + str(radioConfig.gain) + "-e" + datagathduration
 
-    completecmdstring = cmdstring + " -m " + scanname
+    completecmdstring = cmdstring + " -m " + sessiondate + os.sep + scanname
 
     print(completecmdstring)
 
@@ -104,16 +112,18 @@ while continueLoop:
     #print(completecmdstring)
     #run the scan and wait for completion
     scanp = subprocess.Popen(completecmdstring, shell = True)
-    os.waitpid(scanp.pid, 0)
+    #os.waitpid(scanp.pid, 0)
+    scanp.wait()
+    print('Completed scan %d of %d\n' % (scancnt,numscans))
 
-#get event probability info
-#process the scan adding probability info
+    #get event probability info
+    #process the scan adding probability info
 
     if radioConfig.plotWaterfall:
-        chartcmdstring = "python postprocw.py " + scanname
-        #run gnuplot WITHOUT waiting for completion
+        chartcmdstring = "python postprocw.py " + scanname + " 0.0 0.0 " + sessiondate
+        #run rendering WITHOUT waiting for completion
         genchrtp = subprocess.Popen(chartcmdstring, shell = True)
-        print('processing complete for scan %d of %d\n' % (scancnt,numscans))
+        postprocrunning = True
 
     # go on with next scan:
     if loopForever == False:
@@ -121,5 +131,9 @@ while continueLoop:
         if scancnt > numscans:
             continueLoop = False
 
-chartcmdstring = "python findsessionrangew.py"
-genchrtp = subprocess.Popen(chartcmdstring, shell = True)
+#if postprocrunning == True:
+#    genchrtp.wait()	# wait for last plot to complete, just in case
+
+sessrngcmdstring = "python findsessionrangew.py " + sessiondate
+sessrng = subprocess.Popen(sessrngcmdstring, shell = True)
+sessrng.wait()

@@ -97,22 +97,20 @@ if radioConfig.sendIoTmsg:
 
 off2sub = radioConfig.upconvFreqHz
 
-metaname = './' + sys.argv[1] + '.met'
+sessionfolder = sys.argv[4]
+metaname = sessionfolder + os.sep + sys.argv[1] + ".met"
 
 fileDate = sys.argv[1][3:11]
 
 print("fileDate: ",fileDate)
 
-rangespec = False
-#these will be present only when post processing at end of session:
-if len(sys.argv)==4:
-	rangespec = True
-	globmin = float(sys.argv[2])
-	globmax = float(sys.argv[3])
+globmin = float(sys.argv[2])
+globmax = float(sys.argv[3])
+#these will be <> 0 only when post processing at end of session:
+if globmin==0.0 and globmax==0.0:
+	rangespec = False
 else:
-	globmin = 0.0
-	globmax = 0.0
-
+	rangespec = True
 
 def diffdates(d1, d2):
     #Date format: %Y-%m-%d %H:%M:%S
@@ -175,9 +173,8 @@ startFreq = startFreq + cropRelatedReduction
 endFreq = endFreq - cropRelatedReduction
 
 #cmdstring = "gnuplot -e \"scanstart='%s'\" -e \"scanend='%s'\" -e fstart=%d -e fend=%d -e fstep=%d -e singlescandur=%f -e \"matorg='%s'\" -e \"outname='%s'\" -e globmin=%f -e globmax=%f plotmin.gnu" % (firstAcqTimestamp, lastAcqTimestamp, startFreq, endFreq, stepFreq, avgScanDur, matorg, sys.argv[1], globmin, globmax)
-cmdstring = "python pyrend.py %s" % ( sys.argv[1] )
-if rangespec == True:
-	cmdstring = cmdstring + " " + str(globmin) + " " + str(globmax)
+
+cmdstring = "python pyrend.py %s %f %f %s" % ( sys.argv[1], globmin, globmax, sys.argv[4] )
 
 print(cmdstring)
 
@@ -189,8 +186,8 @@ print("...pyrend running...")
 p.wait()
 print("...pyrend completed...")
 
-outname = sys.argv[1]
-thumbname =  sys.argv[1] + '.gif'
+outname = sessionfolder + os.sep + sys.argv[1]
+thumbname =  sessionfolder + os.sep + sys.argv[1] + '.gif'
 
 xmargin = 160
 ymargin = 100
