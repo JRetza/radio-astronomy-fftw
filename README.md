@@ -1,12 +1,12 @@
 # radio-astronomy-fftw
 
-**This is version 4 (April 30, 2016) of my radio-astronomy data collection and dissemination project.**  
-
-**Please read the detailed release notes [here](https://github.com/mariocannistra/radio-astronomy-fftw/commit/abe319d30e093cd934f60172da6a1ec7c62989f4)**
+**This is version 5 (May 29, 2016) of my radio-astronomy data collection and dissemination project.**  
 
 **The programs use [a modified version of rtl_power_fftw](https://github.com/mariocannistra/rtl-power-fftw) originally written by Klemen Blokar and Andrej Lajovic.**  
 
-The following diagram and document are still aligned with version 3. Will soon update them for version 4.  
+There is a [Windows binary release of rtl_power_fftw available for download](https://github.com/mariocannistra/rtl-power-fftw/releases)  
+
+The following diagram and document are still aligned with version 3. Will soon update them for version 4 and 5 changes.
 
 A diagram showing the interactions between the various programs is available [here](https://raw.githubusercontent.com/mariocannistra/radio-astronomy-fftw/master/doc/observ-sw-diagram.png)  
 
