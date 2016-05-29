@@ -8,16 +8,15 @@ import boto
 from boto.s3.key import Key
 import boto.s3.connection
 import radioConfig
-import sys
-from datetime import datetime
-import ntpath
+
+fileDate = "20160101"
 
 def push_picture_to_s3(id):
-    fileDate = datetime.utcnow().strftime('%Y%m%d')
-
+    global fileDate
     BUCKET_NAME = 'jupiter-spectrograms'
     AWS_ACCESS_KEY_ID = 'AKIAJLPT7UALEG4PITKA'
     AWS_SECRET_ACCESS_KEY = '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'
+    # please note that these credentials are allowed to perform an extremely limited set of operations
 
     # connect to the bucket
     conn = boto.s3.connect_to_region('eu-central-1',
@@ -29,11 +28,10 @@ def push_picture_to_s3(id):
 
     #print(conn)
 
-    keyname = '%s/%s/%s' % (radioConfig.scanTarget,fileDate,ntpath.basename(id))
+    keyname = '%s/%s/%s.png' % (radioConfig.scanTarget,fileDate,id)
     #print(keyname)
 
-    #fn = '%s.png' % id
-    fn = id
+    fn = '%s.png' % id
     #print(fn)
 
     bucket = conn.get_bucket(BUCKET_NAME)
@@ -42,14 +40,14 @@ def push_picture_to_s3(id):
     #print "uploading file"
     key = bucket.new_key(keyname)
     key.set_contents_from_filename(fn)
-    print('  file uploaded to aws s3')
+    print '  file uploaded to aws s3'
 
-    print("  setting acl to public read")
+    print "  setting acl to public read"
     key.set_acl('public-read')
 
     # we need to make it public so it can be accessed publicly
     # using a URL like http://s3.amazonaws.com/bucket_name/key
-    print("  making key public")
+    print "  making key public"
     key.make_public()
 
-push_picture_to_s3(sys.argv[1])
+push_picture_to_s3("test-chart")

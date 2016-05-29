@@ -19,8 +19,6 @@ import radioConfig
 import subprocess
 import os
 import datetime
-import sys
-import ntpath
 
 import matplotlib
 # Force matplotlib to not use any Xwindows backend.
@@ -37,19 +35,14 @@ sessmin = np.empty(shape=[0, 1])
 sessmax = np.empty(shape=[0, 1])
 scantimeline = np.empty(shape=[0, 1])
 
-sessionfolder = sys.argv[1]
-overviewname = sessionfolder + os.sep + 'session-overview.png'
-minmaxname = sessionfolder + os.sep + 'dbminmax.txt'
-binpattern = sessionfolder + os.sep + '*.bin'
-
-files_in_dir = sorted(glob(binpattern))
-
+files_in_dir = sorted(glob("*.bin"))
 for fname in files_in_dir:
     dbs = np.fromfile(fname, dtype='float32')
     thismin=dbs.min()
     thismax=dbs.max()
-    scantime=str(fname)[20:26]
-    scandate=str(fname)[12:20]
+    scantime=str(fname)[11:17]
+    scandate=str(fname)[3:11]
+
     if thismin < globmin:
         globmin = thismin
     if thismax > globmax:
@@ -92,7 +85,7 @@ leg.get_frame().set_alpha(0.5)
 plt.title(mytitle)
 #plt.show()
 plt.tight_layout()
-plt.savefig(overviewname)
+plt.savefig('session-overview.png')
 
 sessfile = open("dbminmax.txt", "w")
 sessfile.write(str(globmax))
@@ -101,11 +94,10 @@ sessfile.write(str(globmin))
 sessfile.write("\n")
 sessfile.close()
 
-files_in_dir = glob(binpattern)
+files_in_dir = glob("*.bin")
 for fname in files_in_dir:
-    #scanname = fname[:-4]
-    scanname = ntpath.basename(fname)[:-4]
-    chartcmdstring = "python postprocw.py " + scanname + " " + str(globmin) + " " + str(globmax) + " " + sessionfolder
+    scanname = fname[:-4]
+    chartcmdstring = "python postprocw.py " + scanname + " " + str(globmin) + " " + str(globmax)
     print(chartcmdstring)
     genchrtp = subprocess.Popen(chartcmdstring, shell = True)
     genchrtp.wait()

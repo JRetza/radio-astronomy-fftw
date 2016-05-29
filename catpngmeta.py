@@ -5,7 +5,7 @@
 # this program can be launched manually to display radio astronomy
 # related metadata eventually present in a png file
 
-from PIL import Image, ImageFont, ImageDraw, PngImagePlugin
+import Image, ImageFont, ImageDraw, PngImagePlugin
 import sys
 
 inpname = sys.argv[1]
@@ -14,4 +14,4 @@ old_im = Image.open( inpname )
 metadict = old_im.info
 for key in metadict:
     if key[:3]=='ra-':
-        print(key + '\t' + metadict[key])
+        print key, metadict[key]

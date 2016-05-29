@@ -88,24 +88,23 @@ for ggg in availgains:
 
 	scanname = scanname + "-g" + str( ggg ) + "-e" + datagathduration
 
-	completecmdstring = cmdstring + " -m " + sessiondate + os.sep + scanname
+	completecmdstring = cmdstring + " -m " + scanname
 
 	print('running scan with gain %s' % (ggg))
 	print(completecmdstring)
 
 	#run the scan and wait for completion
 	scanp = subprocess.Popen(completecmdstring, shell = True)
-	#os.waitpid(scanp.pid, 0)
-	scanp.wait()
+	os.waitpid(scanp.pid, 0)
 
 	#get event probability info
 	#process the scan adding probability info
 
-	chartcmdstring = "python postprocw.py " + scanname + " 0.0 0.0 " + sessiondate
+	chartcmdstring = "python postprocw.py " + scanname
 	#run gnuplot WITHOUT waiting for completion
 	genchrtp = subprocess.Popen(chartcmdstring, shell = True)
 
 	print('processing complete for scan with gain %s' % (ggg))
 
-chartcmdstring = "python findsessionrangew.py " + sessiondate
+chartcmdstring = "python findsessionrangew.py"
 genchrtp = subprocess.Popen(chartcmdstring, shell = True)

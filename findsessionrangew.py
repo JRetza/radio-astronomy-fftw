@@ -17,7 +17,6 @@ import radioConfig
 import subprocess
 import os
 import datetime
-import sys
 
 import matplotlib
 # Force matplotlib to not use any Xwindows backend.
@@ -27,8 +26,6 @@ import matplotlib.pyplot as plt
 def strinsert(source_str, insert_str, pos):
     return source_str[:pos]+insert_str+source_str[pos:]
 
-print("Finding session range...")
-
 globmax = -9000
 globmin = 9000
 
@@ -36,19 +33,13 @@ sessmin = np.empty(shape=[0, 1])
 sessmax = np.empty(shape=[0, 1])
 scantimeline = np.empty(shape=[0, 1])
 
-sessionfolder = sys.argv[1]
-overviewname = sessionfolder + os.sep + 'session-overview.png'
-minmaxname = sessionfolder + os.sep + 'dbminmax.txt'
-binpattern = sessionfolder + os.sep + '*.bin'
-
-files_in_dir = sorted(glob(binpattern))
+files_in_dir = sorted(glob("*.bin"))
 for fname in files_in_dir:
-    print(fname)
     dbs = np.fromfile(fname, dtype='float32')
     thismin=dbs.min()
     thismax=dbs.max()
-    scantime=str(fname)[20:26]
-    scandate=str(fname)[12:20]
+    scantime=str(fname)[11:17]
+    scandate=str(fname)[3:11]
 
     if thismin < globmin:
         globmin = thismin
@@ -93,9 +84,9 @@ leg.get_frame().set_alpha(0.5)
 plt.title(mytitle)
 #plt.show()
 plt.tight_layout()
-plt.savefig(overviewname)
+plt.savefig('session-overview.png')
 
-sessfile = open(minmaxname, "w")
+sessfile = open("dbminmax.txt", "w")
 sessfile.write(str(globmax))
 sessfile.write("\n")
 sessfile.write(str(globmin))
