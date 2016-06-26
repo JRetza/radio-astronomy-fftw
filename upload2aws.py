@@ -13,7 +13,7 @@ from datetime import datetime
 import ntpath
 
 def push_picture_to_s3(id):
-    fileDate = datetime.utcnow().strftime('%Y%m%d')
+	# id should have the folder name as YYYYMMDD/filename.ext
 
     BUCKET_NAME = 'jupiter-spectrograms'
     AWS_ACCESS_KEY_ID = 'AKIAJLPT7UALEG4PITKA'
@@ -29,7 +29,7 @@ def push_picture_to_s3(id):
 
     #print(conn)
 
-    keyname = '%s/%s/%s' % (radioConfig.scanTarget,fileDate,ntpath.basename(id))
+    keyname = '%s/%s' % ( radioConfig.scanTarget, id )
     #print(keyname)
 
     #fn = '%s.png' % id

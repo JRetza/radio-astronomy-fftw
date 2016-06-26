@@ -25,9 +25,11 @@ import copy
 import pytz
 import calendar
 from datetime import datetime, timedelta
+import ntpath
 
 def push_picture_to_s3(id):
-    global fileDate
+	# id should have the folder name as YYYYMMDD/filename.ext
+
     BUCKET_NAME = 'jupiter-spectrograms'
     AWS_ACCESS_KEY_ID = 'AKIAJLPT7UALEG4PITKA'
     AWS_SECRET_ACCESS_KEY = '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'
@@ -42,10 +44,11 @@ def push_picture_to_s3(id):
 
     #print(conn)
 
-    keyname = '%s/%s/%s.png' % (radioConfig.scanTarget,fileDate,id)
+    keyname = '%s/%s' % ( radioConfig.scanTarget, id )
     #print(keyname)
 
-    fn = '%s.png' % id
+    #fn = '%s.png' % id
+    fn = id
     #print(fn)
 
     bucket = conn.get_bucket(BUCKET_NAME)
@@ -313,7 +316,7 @@ print("...annotated plot saved.")
 
 # upload spectrogram file to aws S3
 if radioConfig.uploadToS3:
-    push_picture_to_s3(sys.argv[1])
+    push_picture_to_s3( fileDate + "/" + sys.argv[1] + ".png" )
 
 if radioConfig.sendIoTmsg:
     # send MQTT notification message
