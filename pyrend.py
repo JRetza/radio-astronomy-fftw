@@ -11,7 +11,17 @@ import sys
 import copy
 
 #cmapname = 'nipy_spectral'
+#cmapname = 'hot'
+#cmapname = 'coolwarm'
+#cmapname = 'Accent'
 cmapname = 'jet'
+#cmapname = 'terrain'
+#cmapname = 'gist_stern'
+#cmapname = 'brg'
+#cmapname = 'CMRmap'
+#cmapname = 'gist_ncar'
+#cmapname = 'hsv'
+
 ow = 3000
 oh = ow / 4 * 3
 
@@ -42,6 +52,7 @@ dbms = dbms.reshape(metaRows, metaCols)
 
 # rotate to match the way matplotlib works
 dbms = np.rot90(dbms,1)
+dbms = np.flipud(dbms)
 
 theExtent = [1,metaRows,1,metaCols]
 
