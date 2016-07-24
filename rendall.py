@@ -17,8 +17,6 @@ import calendar
 from datetime import datetime, timedelta
 import ntpath
 
-#cmapname = 'nipy_spectral'
-cmapname = 'jet'
 maxcols = 32768
 
 def strinsert(source_str, insert_str, pos):
@@ -26,6 +24,11 @@ def strinsert(source_str, insert_str, pos):
 
 sessionfolder = sys.argv[1]
 binpattern = sessionfolder + os.sep + "*.bin"
+
+if len(sys.argv) == 3:
+    cmapname = sys.argv[2]
+else:
+    cmapname = "jet"
 
 globmax = -9000
 globmin = 9000
@@ -102,9 +105,6 @@ for fname in files_in_dir:
         inflds = linein.split()
         cropFreqOffset = inflds[0]
 
-startFreq = startFreq - radioConfig.upconvFreqHz
-endFreq = endFreq - radioConfig.upconvFreqHz
-
 overalldbs = np.empty(shape=[metaCols, 0])        
 #print "overalldbs.shape: " + str(overalldbs.shape)
 
@@ -125,6 +125,43 @@ for fname in files_in_dir:
         linein = f.readline()
         inflds = linein.split()
         metaRows = int( inflds[0] )
+        linein = f.readline()
+        inflds = linein.split()
+        startFreq = int(inflds[0])
+        linein = f.readline()
+        inflds = linein.split()
+        endFreq = int(inflds[0])
+        linein = f.readline()
+        inflds = linein.split()
+        stepFreq = int(inflds[0])
+        linein = f.readline()
+        inflds = linein.split()
+        effIntTime = float(inflds[0])
+        linein = f.readline()
+        inflds = linein.split()
+        avgScanDur = float(inflds[0])
+        linein = f.readline()
+        inflds = linein.split()
+        firstAcqTimestamp = inflds[0] + ' ' + inflds[1]
+        linein = f.readline()
+        inflds = linein.split()
+        lastAcqTimestamp = inflds[0] + ' ' + inflds[1]
+        
+        linein = f.readline()
+        inflds = linein.split()
+        samplingRate = inflds[0]
+        linein = f.readline()
+        inflds = linein.split()
+        hops = inflds[0]
+        linein = f.readline()
+        inflds = linein.split()
+        cropPercentage = inflds[0]
+        linein = f.readline()
+        inflds = linein.split()
+        cropExcludedBins = inflds[0]
+        linein = f.readline()
+        inflds = linein.split()
+        cropFreqOffset = inflds[0]
 
     dbms = np.fromfile( fname, dtype=np.float32 )
     dbms = dbms.reshape(metaRows, metaCols)
@@ -150,6 +187,16 @@ theExtent = [1,metaRows,1,metaCols]
 
 #print metaRows, metaCols
 print("...plotting...")
+
+overalldbs = np.flipud(overalldbs)
+
+startFreq = startFreq - radioConfig.upconvFreqHz
+endFreq = endFreq - radioConfig.upconvFreqHz
+
+cropRelatedReduction = ( int(cropExcludedBins) / 2 ) * stepFreq
+
+startFreq = startFreq + cropRelatedReduction
+endFreq = endFreq - cropRelatedReduction
 
 #ow = metaCols
 #oh = metaRows

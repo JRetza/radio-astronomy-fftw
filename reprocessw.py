@@ -9,7 +9,7 @@
 # this program is meant to be run standalone
 
 # Its output files are:
-#  - dbminmax.txt and session-overview.png  produced by the findsessionrangew.py porgram.
+#  - dbminmax.txt and session-overview.png  produced by the findsessionrangew.py program.
 #  - the .png file of the annotated plot with metadata stored in the png file
 #  - the corresponding .gif thumbnail to be used for web presentation if any
 
@@ -41,6 +41,11 @@ sessionfolder = sys.argv[1]
 overviewname = sessionfolder + os.sep + 'session-overview.png'
 minmaxname = sessionfolder + os.sep + 'dbminmax.txt'
 binpattern = sessionfolder + os.sep + '*.bin'
+
+if len(sys.argv) == 3:
+    selcmap = sys.argv[2]
+else:
+    selcmap = "jet"
 
 files_in_dir = sorted(glob(binpattern))
 
@@ -105,7 +110,7 @@ files_in_dir = glob(binpattern)
 for fname in files_in_dir:
     #scanname = fname[:-4]
     scanname = ntpath.basename(fname)[:-4]
-    chartcmdstring = "python postprocw.py " + scanname + " " + str(globmin) + " " + str(globmax) + " " + sessionfolder
+    chartcmdstring = "python postprocw.py " + scanname + " " + str(globmin) + " " + str(globmax) + " " + sessionfolder + " " + selcmap
     print(chartcmdstring)
     genchrtp = subprocess.Popen(chartcmdstring, shell = True)
     genchrtp.wait()

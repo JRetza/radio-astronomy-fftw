@@ -1,4 +1,11 @@
-#! /usr/bin/env python
+#!/usr/bin/python
+
+# this source is part of my Hackster.io project:  https://www.hackster.io/mariocannistra/radio-astronomy-with-rtl-sdr-raspberrypi-and-amazon-aws-iot-45b617
+
+# this program is launched with proper parameters by  postprocw.py
+# will plot a spectrogram, add axes and annotations, using a specified colormap if any
+
+# BEFORE RUNNING A SESSION SCAN (with bash runw.sh) please set your configuration values in file  radioConfig.py
 
 from PIL import Image, ImageDraw
 import numpy as np
@@ -10,17 +17,6 @@ import os
 import sys
 import copy
 
-#cmapname = 'nipy_spectral'
-#cmapname = 'hot'
-#cmapname = 'coolwarm'
-#cmapname = 'Accent'
-cmapname = 'jet'
-#cmapname = 'terrain'
-#cmapname = 'gist_stern'
-#cmapname = 'brg'
-#cmapname = 'CMRmap'
-#cmapname = 'gist_ncar'
-#cmapname = 'hsv'
 
 ow = 3000
 oh = ow / 4 * 3
@@ -34,6 +30,11 @@ else:
 	rangespec = True
 
 sessionfolder = sys.argv[4]
+
+if len(sys.argv) == 6:
+    cmapname = sys.argv[5]
+else:
+    cmapname = "jet"
 
 metaname = sessionfolder + os.sep + sys.argv[1] + '.met'
 binname = sessionfolder + os.sep + sys.argv[1] + '.bin'

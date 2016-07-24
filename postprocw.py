@@ -2,7 +2,7 @@
 
 # this source is part of my Hackster.io project:  https://www.hackster.io/mariocannistra/radio-astronomy-with-rtl-sdr-raspberrypi-and-amazon-aws-iot-45b617
 
-# this program is launched with proper parameters by  doscanw.py
+# this program is launched with proper parameters by  doscanw.py  OR  reprocessw.py
 # will produce the spectrograms, upload to AWS S3 if enabled, send mqtt notifications if enabled
 
 # BEFORE RUNNING A SESSION SCAN (with bash runw.sh) please set your configuration values in file  radioConfig.py
@@ -115,6 +115,12 @@ if globmin==0.0 and globmax==0.0:
 else:
 	rangespec = True
 
+if len(sys.argv) == 6:
+    selcmap = sys.argv[5]
+else:
+    selcmap = "jet"
+
+
 def diffdates(d1, d2):
     #Date format: %Y-%m-%d %H:%M:%S
     return (time.mktime(time.strptime(d2,"%Y-%m-%d %H:%M:%S")) -
@@ -177,7 +183,7 @@ endFreq = endFreq - cropRelatedReduction
 
 #cmdstring = "gnuplot -e \"scanstart='%s'\" -e \"scanend='%s'\" -e fstart=%d -e fend=%d -e fstep=%d -e singlescandur=%f -e \"matorg='%s'\" -e \"outname='%s'\" -e globmin=%f -e globmax=%f plotmin.gnu" % (firstAcqTimestamp, lastAcqTimestamp, startFreq, endFreq, stepFreq, avgScanDur, matorg, sys.argv[1], globmin, globmax)
 
-cmdstring = "python pyrend.py %s %f %f %s" % ( sys.argv[1], globmin, globmax, sys.argv[4] )
+cmdstring = "python pyrend.py %s %f %f %s %s" % ( sys.argv[1], globmin, globmax, sys.argv[4], selcmap )
 
 print(cmdstring)
 
