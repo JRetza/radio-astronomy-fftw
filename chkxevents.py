@@ -34,7 +34,7 @@ events = data.decode('utf-8')
 
 eventlines = events.splitlines()
 
-chars = set(':#')	# not interested in comments
+chars = set(':#N')	# not interested in comments and "NO EVENT REPORTS."
 evtfilter = ['RBR', 'RNS', 'RSP', 'XFL', 'XRA', 'FLA']	# interested in these event types only
 longevt = ['XRA', 'FLA']
 
@@ -52,7 +52,7 @@ with open( 'evts' + todaydate + '.txt', "w") as text_file:
 		if line != '':	# skip empty lines
 			line = line.replace('+',' ')	# strip away the plus to avoid item n. issues in following lines
 			linefields = line.split()
-			if (linefields[0][0] in chars) == False:	# this will skip comments
+			if (linefields[0][0] in chars) == False:	# this will skip comments and "NO EVENT REPORTS."
 				if linefields[6] in evtfilter:	# this will catch our events
 					initime = prsutctime( linefields[1] )
 					maxtime = prsutctime( linefields[2] )

@@ -262,11 +262,11 @@ ylab = ymargin / 2
 draw.text((xlab, ylab), "MHz", (0,0,0),font=font)
 
 # add frequencies on Y axis:
-xlab = xmargin / 3
+xlab = ( xmargin / 3 ) - 45
 ylab = ymargin + oh
 ystep = oh / 10
 for flab in frange( iniFreq, finFreq, stFreqLab ):
-    strflab = '%.2f' % flab
+    strflab = '% 7.2f' % flab
     draw.text((xlab, ylab-midfont), strflab, (0,0,0),font=font)
     draw.line((xmargin-20,ylab, xmargin,ylab), fill=0, width=1)
     ylab = ylab - ystep
