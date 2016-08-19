@@ -27,6 +27,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+def outmsg(smsg):
+    thisprogmsg = "reprocessw.py: " + smsg
+    print(thisprogmsg)
+
 def strinsert(source_str, insert_str, pos):
     return source_str[:pos]+insert_str+source_str[pos:]
 
@@ -64,11 +68,12 @@ for fname in files_in_dir:
     scantime = strinsert(scantime, ":", 2)
     scantime = strinsert(scantime, ":", 5)
     scantime = scandate[-2:] + " " + scantime
-    print(scandate,scantime,thismin,thismax)
+    msg = "%s %s %f %f" % (scandate,scantime,thismin,thismax)
+    outmsg(msg)
     scantimeline = np.append(scantimeline, scantime)
 
 mytitle = 'This session signal range: min %.2f .. max %.2f' % (globmin,globmax)
-print(mytitle)
+outmsg(mytitle)
 
 # this red plot will help us in finding the scan with highest power range
 # (when using the gainloop.py program it will be useful to find the best gain values)
@@ -111,7 +116,9 @@ for fname in files_in_dir:
     #scanname = fname[:-4]
     scanname = ntpath.basename(fname)[:-4]
     chartcmdstring = "python postprocw.py " + scanname + " " + str(globmin) + " " + str(globmax) + " " + sessionfolder + " " + selcmap
-    print(chartcmdstring)
+    outmsg(chartcmdstring)
     genchrtp = subprocess.Popen(chartcmdstring, shell = True)
     genchrtp.wait()
 	#os.waitpid(genchrtp.pid, 0)
+
+outmsg('Session reprocessing completed.\n')

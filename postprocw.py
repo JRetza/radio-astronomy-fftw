@@ -27,6 +27,10 @@ import calendar
 from datetime import datetime, timedelta
 import ntpath
 
+def outmsg(smsg):
+    thisprogmsg = "..postprocw.py: " + smsg
+    print(thisprogmsg)
+
 def push_picture_to_s3(id):
 	# id should have the folder name as YYYYMMDD/filename.ext
 
@@ -57,14 +61,14 @@ def push_picture_to_s3(id):
     #print "uploading file"
     key = bucket.new_key(keyname)
     key.set_contents_from_filename(fn)
-    print('  file uploaded to aws s3')
+    outmsg('file uploaded to aws s3')
 
-    print("  setting acl to public read")
+    outmsg("setting acl to public read")
     key.set_acl('public-read')
 
     # we need to make it public so it can be accessed publicly
     # using a URL like http://s3.amazonaws.com/bucket_name/key
-    print("  making key public")
+    outmsg("making key public")
     key.make_public()
 
 connflag = False
@@ -72,13 +76,13 @@ connflag = False
 def on_connect(client, userdata, flags, rc):
     global connflag
     connflag = True
-    print("mqtt connection returned result: " + str(rc))
+    outmsg("mqtt connection returned result: " + str(rc))
 
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
+    outmsg(msg.topic+" "+str(msg.payload))
 
 #def on_log(client, userdata, level, buf):
-#    print msg.topic+" "+str(msg.payload)
+#    outmsg msg.topic+" "+str(msg.payload)
 
 mqttc = paho.Client()
 mqttc.on_connect = on_connect
@@ -105,7 +109,8 @@ metaname = sessionfolder + os.sep + sys.argv[1] + ".met"
 
 fileDate = sys.argv[1][3:11]
 
-print("fileDate: ",fileDate)
+msg = "fileDate: " + fileDate
+outmsg(msg)
 
 globmin = float(sys.argv[2])
 globmax = float(sys.argv[3])
@@ -185,15 +190,15 @@ endFreq = endFreq - cropRelatedReduction
 
 cmdstring = "python pyrend.py %s %f %f %s %s" % ( sys.argv[1], globmin, globmax, sys.argv[4], selcmap )
 
-print(cmdstring)
+outmsg(cmdstring)
 
-print("generating heatmap...")
+outmsg("generating heatmap")
 p = subprocess.Popen(cmdstring, shell = True)
-print("...pyrend running...")
+outmsg("started pyrend.py")
 # comment out the following to avoid waiting for pyrend:
 #os.waitpid(p.pid, 0)
 p.wait()
-print("...pyrend completed...")
+outmsg("pyrend completed")
 
 outname = sessionfolder + os.sep + sys.argv[1]
 thumbname =  sessionfolder + os.sep + sys.argv[1] + '.gif'
@@ -207,13 +212,13 @@ old_size = old_im.size
 ow, oh = old_im.size
 
 if radioConfig.generateThumbs == True:
-	print("...generating thumbnail...")
+	outmsg("generating thumbnail")
 	# create thumbnail in gif format
 	thumb = copy.deepcopy(old_im)
 	thumb.thumbnail( (ow/10,oh/10) , Image.ANTIALIAS)
 	thumb.save(thumbname,'GIF')
 
-print("...performing annotation...")
+outmsg("performing annotation")
 # add enough margin for axis labels
 new_size = ( ow + xmargin + xmargin, oh + ymargin + ymargin + 50)
 new_im = Image.new("RGB", new_size, color=(255,255,255) )
@@ -284,12 +289,12 @@ for j in range(0, 21):
     xlab = xlab + xstep
     tlab = tlab + timedelta(seconds=stepTime)
 
-print("...performing palette conversion...")
+outmsg("performing palette conversion")
 # this is necessary to keep image file size at a minimum
 # ( it's also the file mode used by gnuplot )
 new_im = new_im.convert('P', palette=Image.ADAPTIVE, colors=256)
 
-print("...adding metadata to image...")
+outmsg("adding metadata to image")
 # create and attach info dictionary with metadata
 meta = PngImagePlugin.PngInfo()
 meta.add_text("ra-stationID", radioConfig.stationID)
@@ -318,7 +323,7 @@ new_im.save(outname + '-annotated.png', "png", pnginfo=meta, optimize=True)
 
 os.remove(outname + '.png')
 os.rename(outname + '-annotated.png', outname + '.png')
-print("...annotated plot saved.")
+outmsg("annotated plot saved")
 
 # upload spectrogram file to aws S3
 if radioConfig.uploadToS3:
@@ -327,6 +332,6 @@ if radioConfig.uploadToS3:
 if radioConfig.sendIoTmsg:
     # send MQTT notification message
     mqttc.publish("radioscans/" + radioConfig.scanTarget + "/" + fileDate + "/", sys.argv[1]+".png", qos=1)
-    print("mqtt notification sent")
+    outmsg("mqtt notification sent")
     sleep(0.5)
     mqttc.disconnect()

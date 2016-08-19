@@ -24,10 +24,14 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+def outmsg(smsg):
+    thisprogmsg = "..findsessionrangew.py: " + smsg
+    print(thisprogmsg)
+
 def strinsert(source_str, insert_str, pos):
     return source_str[:pos]+insert_str+source_str[pos:]
 
-print("Finding session range...")
+outmsg("Finding session range...")
 
 globmax = -9000
 globmin = 9000
@@ -43,7 +47,7 @@ binpattern = sessionfolder + os.sep + '*.bin'
 
 files_in_dir = sorted(glob(binpattern))
 for fname in files_in_dir:
-    print(fname)
+    outmsg(fname)
     dbs = np.fromfile(fname, dtype='float32')
     thismin=dbs.min()
     thismax=dbs.max()
@@ -59,11 +63,12 @@ for fname in files_in_dir:
     scantime = strinsert(scantime, ":", 2)
     scantime = strinsert(scantime, ":", 5)
     scantime = scandate[-2:] + " " + scantime
-    print(scandate,scantime,thismin,thismax)
+    msg = "%s %s %f %f" % (scandate,scantime,thismin,thismax)
+    outmsg(msg)
     scantimeline = np.append(scantimeline, scantime)
 
 mytitle = 'This session signal range: min %.2f .. max %.2f' % (globmin,globmax)
-print(mytitle)
+outmsg(mytitle)
 
 # this red plot will help us in finding the scan with highest power range
 # (when using the gainloop.py program it will be useful to find the best gain values)
@@ -101,3 +106,5 @@ sessfile.write("\n")
 sessfile.write(str(globmin))
 sessfile.write("\n")
 sessfile.close()
+
+outmsg("Session signal range chart saved")

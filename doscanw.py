@@ -23,6 +23,10 @@ import os
 import radioConfig
 from math import ceil
 
+def outmsg(smsg):
+    thisprogmsg = "doscanw.py: " + smsg
+    print(thisprogmsg)
+
 def make_sure_path_exists(directory):
 	if not os.path.exists(directory):
 		os.makedirs(directory)
@@ -44,7 +48,9 @@ if radioConfig.totalFFTbins > 0:
 else:
     freqbins = (freqstop - freqstart) / radioConfig.binSizeHz
 
-hops = ceil( float(freqstop - freqstart) / float(radioConfig.rtlSampleRateHz) )
+min_overhang = radioConfig.rtlSampleRateHz * radioConfig.cropPercentage / 100
+hops = ceil(((freqstop - freqstart) - min_overhang) / (radioConfig.rtlSampleRateHz - min_overhang))	
+# hops = ceil( float(freqstop - freqstart) / float(radioConfig.rtlSampleRateHz) )
 if hops > 1:
     freqbins = int( freqbins / hops )
     totalFFTbins = int(freqbins * hops)
@@ -68,25 +74,37 @@ if radioConfig.integrationIntervalSec > 0:
 else:
     cmdstring = cmdstring + " -n " + str(radioConfig.integrationScans)
 
-cmdstring = cmdstring + " -g " + str(radioConfig.gain * 10)
+cmdstring = cmdstring + " -g " + str(int(radioConfig.gain * 10))
 
 cmdstring = cmdstring + " -p " + str(radioConfig.tunerOffsetPPM)
 
 if radioConfig.cropPercentage > 0:
     cmdstring = cmdstring + " -x " + str(radioConfig.cropPercentage)
 
-cmdstring = cmdstring + " -e " + datagathduration
+if radioConfig.subtractBaseline:
+    cmdstring = cmdstring + " -B newbase.dat"
+
+# in this way we can specify 0 to perform just 1 scan 
+# (useful for baseline creation, tests and debugging):
+if radioConfig.dataGatheringDurationMin > 0:
+    cmdstring = cmdstring + " -e " + datagathduration
+
 cmdstring = cmdstring + " -q"
 
 if radioConfig.linearPower:
     cmdstring = cmdstring + " -l"
 
-if radioConfig.sessionDurationMin == 0:
+if radioConfig.sessionDurationMin == 0 and radioConfig.dataGatheringDurationMin > 0:
     loopForever = True
 else:
     loopForever = False
 
-numscans = radioConfig.sessionDurationMin / radioConfig.dataGatheringDurationMin
+if radioConfig.dataGatheringDurationMin > 0:
+    numscans = radioConfig.sessionDurationMin / radioConfig.dataGatheringDurationMin
+    singleScan = False
+else:
+    numscans = 1
+    singleScan = True
 
 scancnt = 1
 continueLoop = True
@@ -106,21 +124,21 @@ while continueLoop:
 
     completecmdstring = cmdstring + " -m " + sessiondate + os.sep + scanname
 
-    print(completecmdstring)
+    outmsg(completecmdstring)
 
-    print('\nrunning scan n. %d  (%d hops per scan)\n' % (scancnt, hops))
+    outmsg('running scan n. %d  (%d hops per scan)' % (scancnt, hops))
     #print(completecmdstring)
     #run the scan and wait for completion
     scanp = subprocess.Popen(completecmdstring, shell = True)
     #os.waitpid(scanp.pid, 0)
     scanp.wait()
-    print('Completed scan %d of %d\n' % (scancnt,numscans))
+    outmsg('Completed scan %d of %d\n' % (scancnt,numscans))
 
     #get event probability info
     #process the scan adding probability info
 
     if radioConfig.plotWaterfall:
-        chartcmdstring = "python postprocw.py " + scanname + " 0.0 0.0 " + sessiondate
+        chartcmdstring = "python postprocw.py " + scanname + " 0.0 0.0 " + sessiondate + " " + singleScan
         #run rendering WITHOUT waiting for completion
         genchrtp = subprocess.Popen(chartcmdstring, shell = True)
         postprocrunning = True
@@ -131,9 +149,11 @@ while continueLoop:
         if scancnt > numscans:
             continueLoop = False
 
-#if postprocrunning == True:
-#    genchrtp.wait()	# wait for last plot to complete, just in case
+if postprocrunning == True:
+    genchrtp.wait()	# wait for last plot to complete, just in case
 
 sessrngcmdstring = "python findsessionrangew.py " + sessiondate
 sessrng = subprocess.Popen(sessrngcmdstring, shell = True)
 sessrng.wait()
+
+outmsg('Session run completed.\n')

@@ -20,6 +20,8 @@ cropPercentage = 30
 integrationIntervalSec = 0.5	# see rtl_power_fftw documentation, this is the integration time in seconds. can be < 1 sec 
 integrationScans = 0	# see rtl_power_fftw documentation, this is the number of scans that will be averaged for integration purposes. Allows to integrate for less than 1 second.
 
+subtractBaseline = False   # when true a previously recorded baseline scan will be subtracted from every scan before saving to disk
+
 gain = 30   # maximum gain is about 49, can be too much in certain positions with strong interfering sources
 linearPower = False	# flag to calculate linear power values instead of logarithmic
 tunerOffsetPPM = 0 # see rtl_power documentation, i can use 0 on my TCXO based dongle, cab be anything from 0 to 60 or more depending on the dongle (use kalibrate to find it out)

@@ -17,6 +17,9 @@ import os
 import sys
 import copy
 
+def outmsg(smsg):
+    thisprogmsg = "....pyrend.py: " + smsg
+    print(thisprogmsg)
 
 ow = 3000
 oh = ow / 4 * 3
@@ -40,6 +43,7 @@ metaname = sessionfolder + os.sep + sys.argv[1] + '.met'
 binname = sessionfolder + os.sep + sys.argv[1] + '.bin'
 outname = sessionfolder + os.sep + sys.argv[1] + '.png'
 
+outmsg("reading metadata")
 with open(metaname, 'r') as f:
     linein = f.readline()
     inflds = linein.split()
@@ -49,6 +53,10 @@ with open(metaname, 'r') as f:
     metaRows = int( inflds[0] )
 
 dbms = np.fromfile( binname, dtype=np.float32 )
+
+msg = "Successfully read %d binary values" % (len(dbms))
+outmsg(msg)
+
 dbms = dbms.reshape(metaRows, metaCols)
 
 # rotate to match the way matplotlib works
@@ -58,7 +66,7 @@ dbms = np.flipud(dbms)
 theExtent = [1,metaRows,1,metaCols]
 
 #print metaRows, metaCols
-print("...plotting...")
+outmsg("plotting spectrum")
 
 fig = plt.figure(frameon=False)
 fig.set_size_inches( ow, oh )
@@ -72,3 +80,5 @@ else:
 	ax.imshow(dbms, interpolation='nearest', origin='lower', extent=theExtent, aspect='auto', cmap=plt.get_cmap(cmapname) )
 
 fig.savefig(outname, dpi=1)
+
+outmsg("spectrum saved")
