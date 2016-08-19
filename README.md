@@ -1,6 +1,6 @@
 # radio-astronomy-fftw
 
-**This is version 6 (June 26, 2016) of my radio-astronomy data collection and dissemination project.**  
+**This is version 7 (August 19, 2016) of my radio-astronomy data collection and dissemination project.**  
 
 **The programs use [a modified version of rtl_power_fftw](https://github.com/mariocannistra/rtl-power-fftw) originally written by Klemen Blokar and Andrej Lajovic.**  
 
