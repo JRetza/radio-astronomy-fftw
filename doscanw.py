@@ -138,7 +138,7 @@ while continueLoop:
     #process the scan adding probability info
 
     if radioConfig.plotWaterfall:
-        chartcmdstring = "python postprocw.py " + scanname + " 0.0 0.0 " + sessiondate + " " + singleScan
+        chartcmdstring = "python postprocw.py " + scanname + " 0.0 0.0 " + sessiondate + " jet " + str(singleScan)
         #run rendering WITHOUT waiting for completion
         genchrtp = subprocess.Popen(chartcmdstring, shell = True)
         postprocrunning = True
